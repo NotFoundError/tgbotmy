@@ -10,3 +10,5 @@ requests
 telegram
 bs4
 pynewtonmath
+tldextract
+nltk
