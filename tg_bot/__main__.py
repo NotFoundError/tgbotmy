@@ -30,7 +30,7 @@ I'm a modular group management bot with a few fun extras! Have a look at the fol
 the things I can help you with.
 
 *Main* commands available:
- - /start: start the bot
+ - /start: start the bot.
  - /help: PM's you this message.
  - /help <module name>: PM's you info about that module.
  - /settings:
