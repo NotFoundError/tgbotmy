@@ -164,7 +164,7 @@ def send_start(bot, update):
     text = "Hey there! My name is Mia 2.0 - I'm here to help you manage your groups!\n\
 Click Help button to find out more about how to use me to my full potential.\n\n"
 
-    text += "Join [Support Group](https://t.me/AnAnD_BotS)  ( @AnAnD_BotS ) if you need any support or help\n\n\Follow [Mia 2.0](https://t.me/Miababot) ( @Miababot ) if you want to keep up with the news, updates and bot downtime!\n\n\Made with love by @AnandTEcH_MasTer\n\nWant to add me to your group? [Click here!](t.me/MiabaBot?startgroup=true)"
+    text += "Join [Support Group](https://t.me/AnAnD_BotS)  ( @AnAnD_BotS ) if you need any support or help\n\nFollow [Mia 2.0](https://t.me/Miababot) ( @Miababot ) if you want to keep up with the news, updates and bot downtime!\n\nMade with love by @AnandTEcH_MasTer\n\nWant to add me to your group? [Click here!](t.me/MiabaBot?startgroup=true)"
 
     keyboard = [[InlineKeyboardButton(text="📢 Support Group", url="https://t.me/AnAnD_BotS")]]
     keyboard += [[InlineKeyboardButton(text="🛠 Control panel", callback_data="cntrl_panel_M")]]
