@@ -17,6 +17,9 @@ from tg_bot import dispatcher, updater, TOKEN, WEBHOOK, OWNER_ID, DONATION_LINK,
 from tg_bot.modules import ALL_MODULES
 from tg_bot.modules.helper_funcs.chat_status import is_user_admin
 from tg_bot.modules.helper_funcs.misc import paginate_modules
+from tg_bot.modules.translations.strings import tld, tld_help
+from tg_bot.modules.connection import connected
+
 
 PM_START_TEXT = """
 Hey there! My name is Haruka Aya - I'm here to help you manage your groups!\n\
@@ -409,12 +412,46 @@ def get_help(bot: Bot, update: Update):
 
     elif len(args) >= 2 and any(args[1].lower() == x for x in HELPABLE):
         module = args[1].lower()
-        text = "Here is the available help for the *{}* module:\n".format(HELPABLE[module].__mod_name__) \
-               + HELPABLE[module].__help__
-        send_help(chat.id, text, InlineKeyboardMarkup([[InlineKeyboardButton(text="Back", callback_data="help_back")]]))
+        mod_name = tld(chat.id, HELPABLE[module].__mod_name__)
+        help_txt = tld_help(chat.id, HELPABLE[module].__mod_name__)
+
+        if help_txt == False:
+            help_txt = HELPABLE[module].__help__
+
+        text = tld(chat.id, "Here is the help for the *{}* module:\n{}").format(mod_name, help_txt)
+        send_help(chat.id, text, InlineKeyboardMarkup([[InlineKeyboardButton(text=tld(chat.id, "Back"), callback_data="help_back")]]))
 
     else:
-        send_help(chat.id, HELP_STRINGS)
+        send_help(chat.id, tld(chat.id, "send-help").format(dispatcher.bot.first_name, "" if not ALLOW_EXCL else tld(
+            chat.id, "\nAll commands can either be used with `/` or `!`.\n"
+                )))
+
+
+def send_settings(chat_id, user_id, update, user=False):
+    if user:
+        if USER_SETTINGS:
+            settings = "\n\n".join(
+                "*{}*:\n{}".format(mod.__mod_name__, mod.__user_settings__(Bot, update, user_id)) for mod in USER_SETTINGS.values())
+            dispatcher.bot.send_message(user_id, "These are your current settings:" + "\n\n" + settings,
+                                        parse_mode=ParseMode.MARKDOWN)
+
+        else:
+            dispatcher.bot.send_message(user_id, "Seems like there aren't any user specific settings available :'(",
+                                        parse_mode=ParseMode.MARKDOWN)
+
+    else:
+        if CHAT_SETTINGS:
+            chat_name = dispatcher.bot.getChat(chat_id).title
+            dispatcher.bot.send_message(user_id,
+                                        text="Which module would you like to check {}'s settings for?".format(
+                                            chat_name),
+                                        reply_markup=InlineKeyboardMarkup(
+                                            paginate_modules(user_id, 0, CHAT_SETTINGS, "stngs", chat=chat_id)))
+        else:
+            dispatcher.bot.send_message(user_id, "Seems like there aren't any chat settings available :'(\nSend this "
+                                                 "in a group chat you're admin in to find its current settings!",
+                                        parse_mode=ParseMode.MARKDOWN)
+
 
 
 def send_settings(chat_id, user_id, user=False):
@@ -579,7 +616,15 @@ def main():
 
     help_handler = CommandHandler("help", get_help)
     help_callback_handler = CallbackQueryHandler(help_button, pattern=r"help_")
+    
+    start_callback_handler = CallbackQueryHandler(send_start, pattern=r"bot_start")
+    dispatcher.add_handler(start_callback_handler)
 
+    cntrl_panel = CommandHandler("controlpanel", control_panel)
+    cntrl_panel_callback_handler = CallbackQueryHandler(control_panel, pattern=r"cntrl_panel")
+    dispatcher.add_handler(cntrl_panel_callback_handler)
+    dispatcher.add_handler(cntrl_panel)
+    
     settings_handler = CommandHandler("settings", get_settings)
     settings_callback_handler = CallbackQueryHandler(settings_button, pattern=r"stngs_")
 
